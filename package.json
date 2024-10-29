@@ -1,0 +1,37 @@
+{
+  "name": "nodejs-crud-api",
+  "version": "1.0.0",
+  "description": "Nodejs CRUD API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "register": "cross-env NODE_OPTIONS='--import=./register-ts-node.mjs'",
+    "start:prod": "npm run register webpack && node ./dist/index.js",
+    "start:dev": "npm run register nodemon --exec ts-node ./src/index.ts",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "build": "npm run start:prod",
+    "start": "npm run start:dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.8.1",
+    "@types/webpack": "^5.28.5",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "prettier": "3.3.3",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "^8.12.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
