@@ -1,3 +1,5 @@
+import { validate as uuidValidate } from 'uuid';
+
 import { findCurrentUserById } from '../services/users.service.ts';
 import { getIdFromPathName } from '../common/helpers.ts';
 import { userDB } from '../db/users.db.ts';
@@ -19,7 +21,7 @@ export const getHandler = (pathname: string): HttpMethodHandler => {
 
   if (pathname.startsWith(ENDPOINTS.USERS)) {
     const currentUserId = getIdFromPathName(pathname);
-    if (!currentUserId) {
+    if (!currentUserId || !uuidValidate(currentUserId)) {
       return {
         payload: RESPONSE_MESSAGES.BAD_REQUEST,
         statusCode: STATUS_CODES.BAD_REQUEST,
