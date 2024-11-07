@@ -1,5 +1,3 @@
-const a = 6;
-const b = 2;
-const result: number = a + Number(b);
+import { startServer } from './server.ts';
 
-console.log('Hello from Typescript: ', result);
+startServer();
