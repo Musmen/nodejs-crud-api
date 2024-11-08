@@ -14,3 +14,10 @@ export const ENDPOINTS = {
 };
 
 export const URL_DELIMITER = '/';
+
+export const HEADERS = {
+  CONTENT: {
+    JSON: { name: 'Content-Type', value: 'application/json' },
+    TEXT: { name: 'Content-Type', value: 'text/plain' },
+  }
+}
