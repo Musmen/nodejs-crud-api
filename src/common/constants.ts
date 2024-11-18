@@ -17,7 +17,7 @@ export const URL_DELIMITER = '/';
 
 export const HEADERS = {
   CONTENT: {
-    JSON: { name: 'Content-Type', value: 'application/json' },
-    TEXT: { name: 'Content-Type', value: 'text/plain' },
+    JSON: { headerName: 'Content-Type', headerValue: 'application/json' },
+    TEXT: { headerName: 'Content-Type', headerValue: 'text/plain' },
   }
 }

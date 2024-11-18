@@ -1,33 +1,37 @@
 import { validate as uuidValidate } from 'uuid';
+import * as http from 'node:http';
 
 import { findCurrentUserById } from '../services/users.service.ts';
-import { buildResponse, getIdFromPathName } from '../common/helpers.ts';
+import { sendResponse, getIdFromPathName } from '../common/helpers.ts';
 import { userDB } from '../db/users.db.ts';
 import {
   STATUS_CODES,
   ENDPOINTS,
   RESPONSE_MESSAGES,
 } from '../common/constants.ts';
-import { HttpResponse } from '../types/http-response.type.ts';
 
-export const getHandler = (pathname: string): HttpResponse => {
+export const getHandler = (pathname: string, response: http.ServerResponse): void => {
   if (pathname === ENDPOINTS.USERS) {
-    return buildResponse({ payload: JSON.stringify(userDB) })
+    sendResponse({ response, payload: JSON.stringify(userDB) });
+    return;
   }
 
   if (pathname.startsWith(ENDPOINTS.USERS)) {
     const currentUserId = getIdFromPathName(pathname);
     if (!currentUserId || !uuidValidate(currentUserId)) {
-      return buildResponse({ payload: RESPONSE_MESSAGES.BAD_REQUEST, statusCode: STATUS_CODES.BAD_REQUEST });
+      sendResponse({ response, payload: RESPONSE_MESSAGES.BAD_REQUEST, statusCode: STATUS_CODES.BAD_REQUEST });
+      return;
     }
 
     const currentUser = findCurrentUserById(userDB, currentUserId);
     if (!currentUser) {
-      return buildResponse({ payload: RESPONSE_MESSAGES.NOT_FOUND, statusCode: STATUS_CODES.NOT_FOUND });
+      sendResponse({ response, payload: RESPONSE_MESSAGES.NOT_FOUND, statusCode: STATUS_CODES.NOT_FOUND });
+      return;
     }
 
-    return buildResponse({ payload: JSON.stringify(currentUser) })
+    sendResponse({ response, payload: JSON.stringify(currentUser) })
+    return;
   }
 
-  return buildResponse({ payload: RESPONSE_MESSAGES.BAD_REQUEST, statusCode: STATUS_CODES.NOT_FOUND });
+  sendResponse({ response, payload: RESPONSE_MESSAGES.BAD_REQUEST, statusCode: STATUS_CODES.NOT_FOUND });
 };
