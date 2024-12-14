@@ -19,5 +19,5 @@ export const HEADERS = {
   CONTENT: {
     JSON: { headerName: 'Content-Type', headerValue: 'application/json' },
     TEXT: { headerName: 'Content-Type', headerValue: 'text/plain' },
-  }
-}
+  },
+};
