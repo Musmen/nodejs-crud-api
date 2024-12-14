@@ -1,18 +1,22 @@
-import * as http from 'node:http'; 
+import * as http from 'node:http';
 
 import { sendResponse } from '../common/helpers.ts';
 import { ENDPOINTS, RESPONSE_MESSAGES, STATUS_CODES } from '../common/constants.ts';
 
 export const postHandler = (
-  pathname: string, 
-  request: http.IncomingMessage, 
+  pathname: string,
+  request: http.IncomingMessage,
   response: http.ServerResponse
 ): void => {
   if (pathname !== ENDPOINTS.USERS) {
-    sendResponse({ response, payload: RESPONSE_MESSAGES.BAD_REQUEST, statusCode: STATUS_CODES.NOT_FOUND })
+    sendResponse({
+      response,
+      payload: RESPONSE_MESSAGES.BAD_REQUEST,
+      statusCode: STATUS_CODES.NOT_FOUND,
+    });
     return;
   }
-  
+
   let body = '';
 
   request.on('data', (chunk: string) => {

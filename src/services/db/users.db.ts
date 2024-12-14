@@ -1,6 +1,6 @@
 import { v1 as uuid } from 'uuid';
 
-import { User } from '../types/user.type.ts';
+import { User } from '../../types/user.type.ts';
 
 // Should be removed later
 const USERS_TEST_DB: User[] = [
