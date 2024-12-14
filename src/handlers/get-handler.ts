@@ -1,9 +1,8 @@
 import * as http from 'node:http';
 
-import { userService } from '../services/users.service.ts';
+import { userService, User } from '../services/users/users.service.ts';
 import { sendResponse, getIdFromPathName } from '../common/helpers.ts';
 import { STATUS_CODES, ENDPOINTS, RESPONSE_MESSAGES } from '../common/constants.ts';
-import { User } from '../types/user.type.ts';
 
 export const getHandler = (pathname: string, response: http.ServerResponse): void => {
   if (pathname === ENDPOINTS.USERS) {

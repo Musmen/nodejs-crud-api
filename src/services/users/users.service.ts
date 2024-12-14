@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from 'uuid';
 
-import { User } from '../types/user.type.ts';
+import { User } from './types/user.type.ts';
 import { userDB } from './db/users.db.ts';
 
 class UserService {
@@ -14,3 +14,4 @@ class UserService {
 }
 
 export const userService = new UserService();
+export { User };
