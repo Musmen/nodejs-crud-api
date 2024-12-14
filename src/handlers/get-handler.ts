@@ -1,13 +1,13 @@
-import * as http from 'node:http';
-
 import { userService, User } from '../services/users/users.service.ts';
-import { sendResponse, getIdFromPathName } from '../common/helpers.ts';
-import { STATUS_CODES, ENDPOINTS, RESPONSE_MESSAGES } from '../common/constants.ts';
+import { responseService } from '../services/response/response.service.ts';
 
-export const getHandler = (pathname: string, response: http.ServerResponse): void => {
+import { getIdFromPathName } from '../common/helpers.ts';
+import { ENDPOINTS } from '../common/constants.ts';
+
+export const getHandler = (pathname: string): void => {
   if (pathname === ENDPOINTS.USERS) {
     const allUsers = userService.getAllUsers();
-    sendResponse({ response, payload: JSON.stringify(allUsers) });
+    responseService.send(allUsers);
     return;
   }
 
@@ -15,31 +15,19 @@ export const getHandler = (pathname: string, response: http.ServerResponse): voi
     const currentUserId: string | undefined = getIdFromPathName(pathname);
 
     if (!userService.isUserIdValid(currentUserId)) {
-      sendResponse({
-        response,
-        payload: RESPONSE_MESSAGES.BAD_REQUEST,
-        statusCode: STATUS_CODES.BAD_REQUEST,
-      });
+      responseService.sendBadRequest();
       return;
     }
 
     const currentUser: User | undefined = userService.findCurrentUserById(currentUserId);
     if (!currentUser) {
-      sendResponse({
-        response,
-        payload: RESPONSE_MESSAGES.NOT_FOUND,
-        statusCode: STATUS_CODES.NOT_FOUND,
-      });
+      responseService.sendNotFoundData();
       return;
     }
 
-    sendResponse({ response, payload: JSON.stringify(currentUser) });
+    responseService.send(currentUser);
     return;
   }
 
-  sendResponse({
-    response,
-    payload: RESPONSE_MESSAGES.BAD_REQUEST,
-    statusCode: STATUS_CODES.NOT_FOUND,
-  });
+  responseService.sendNotFoundEndpoint();
 };
