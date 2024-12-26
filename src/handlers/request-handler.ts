@@ -4,6 +4,7 @@ import { responseService } from '../services/response/response.service.ts';
 
 import { getHandler } from './get-handler.ts';
 import { postHandler } from './post-handler.ts';
+import { putHandler } from './put-handler.ts';
 import { getPathNameFromUrl } from '../common/helpers.ts';
 
 export const requestHandler: http.RequestListener = (request, response) => {
@@ -18,6 +19,9 @@ export const requestHandler: http.RequestListener = (request, response) => {
       break;
     case 'POST':
       postHandler(pathname, request);
+      break;
+    case 'PUT':
+      putHandler(pathname, request);
       break;
   }
 };

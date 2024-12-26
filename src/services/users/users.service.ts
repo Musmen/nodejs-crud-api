@@ -11,12 +11,23 @@ class UserService {
   findCurrentUserById = (currentUserId: string | undefined): User | undefined =>
     userDB.find((user: User) => user.id === currentUserId);
 
+  findCurrentUserIndexById = (currentUserId: string | undefined): number =>
+    userDB.findIndex((user: User) => user.id === currentUserId);
+
   static checkUserId = (currentUserId: string | undefined): boolean =>
     Boolean(currentUserId && uuidValidate(currentUserId));
 
   addUser = (user: User): User => {
     user.id = uuid();
     userDB.push(user);
+    return user;
+  };
+
+  updateUser = (user: User): User => {
+    console.log(user);
+    const currentUserIndex = this.findCurrentUserIndexById(user.id);
+    if (currentUserIndex === -1) throw new Error();
+    userDB[currentUserIndex] = user;
     return user;
   };
 
