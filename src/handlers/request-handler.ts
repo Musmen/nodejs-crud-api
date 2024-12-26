@@ -1,41 +1,23 @@
 import * as http from 'node:http';
 
 import { responseService } from '../services/response/response.service.ts';
-import { User, userService, UserService } from '../services/users/users.service.ts';
+import { pathnameService } from '../services/pathname/pathname.service.ts';
 
 import { getHandler } from './get-handler.ts';
 import { postHandler } from './post-handler.ts';
 import { putHandler } from './put-handler.ts';
 import { deleteHandler } from './delete-handler.ts';
 
-import { getIdFromPathName, getPathNameFromUrl } from '../common/helpers.ts';
-import { ENDPOINTS } from '../common/constants.ts';
-
 export const requestHandler: http.RequestListener = (request, response) => {
   responseService.init(response);
 
   const { method, url } = request;
-  const pathname = getPathNameFromUrl(url);
 
-  let currentUserId: string | undefined;
-  let currentUser: User | undefined;
+  const pathname = pathnameService.getPathnameFromUrl(url);
+  if (!pathnameService.checkPathname(pathname)) return;
 
-  if (!pathname.startsWith(ENDPOINTS.USERS)) {
-    responseService.sendNotFoundEndpoint();
-    return;
-  } else if (pathname !== ENDPOINTS.USERS) {
-    currentUserId = getIdFromPathName(pathname);
-    if (!UserService.checkUserId(currentUserId)) {
-      responseService.sendBadRequest();
-      return;
-    }
-
-    currentUser = userService.findCurrentUserById(currentUserId);
-    if (!currentUser) {
-      responseService.sendNotFoundData();
-      return;
-    }
-  }
+  const currentUserId = pathnameService.getCurrentUserId(pathname);
+  const currentUser = pathnameService.getCurrentUser(currentUserId);
 
   switch (method) {
     case 'GET':
