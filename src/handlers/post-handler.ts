@@ -1,32 +1,32 @@
 import * as http from 'node:http';
 
-import { responseService } from '../services/response/response.service.ts';
+import { responseService, STATUS_CODES } from '../services/response/response.service.ts';
+import { User, userService, UserService } from '../services/users/users.service.ts';
+
 import { ENDPOINTS } from '../common/constants.ts';
 
-export const postHandler = (pathname: string, request: http.IncomingMessage): void => {
+export const postHandler = (pathname: string, request: http.IncomingMessage) => {
   if (pathname !== ENDPOINTS.USERS) {
     responseService.sendNotFoundEndpoint();
     return;
   }
 
-  let body = '';
+  let requestBody = '';
 
   request.on('data', (chunk: string) => {
-    console.log(chunk.toString());
-    body += chunk.toString();
+    requestBody += chunk.toString();
   });
 
   request.on('end', () => {
-    responseService.send(body);
+    let parsedUser: User;
+    try {
+      parsedUser = UserService.getParsedUser(requestBody);
+    } catch (error) {
+      responseService.sendBadRequest((error as Error).message);
+      return;
+    }
+
+    const addedUser: User = userService.addUser(parsedUser);
+    responseService.send(addedUser, STATUS_CODES.CREATED);
   });
 };
-
-/* 
-fetch('http://localhost:4000/api/users', {method: 'POST', body: JSON.stringify({
-  id:'0aac4690-9ded-11ef-8309-9d1059eb8175',
-  username: 'FETCHED',
-  age: 555,
-  hobbies: ['very', 'busy', 'person'],
-}
-)}).then(response => response.json()).then(response => console.log(response));      
-*/

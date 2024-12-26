@@ -1,4 +1,4 @@
-import { userService, User } from '../services/users/users.service.ts';
+import { userService, User, UserService } from '../services/users/users.service.ts';
 import { responseService } from '../services/response/response.service.ts';
 
 import { getIdFromPathName } from '../common/helpers.ts';
@@ -14,7 +14,7 @@ export const getHandler = (pathname: string): void => {
   if (pathname.startsWith(ENDPOINTS.USERS)) {
     const currentUserId: string | undefined = getIdFromPathName(pathname);
 
-    if (!userService.isUserIdValid(currentUserId)) {
+    if (!UserService.checkUserId(currentUserId)) {
       responseService.sendBadRequest();
       return;
     }

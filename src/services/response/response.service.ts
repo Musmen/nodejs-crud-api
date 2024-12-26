@@ -4,7 +4,7 @@ import { HEADERS, RESPONSE_MESSAGES, STATUS_CODES } from './common/constants.ts'
 import { HttpResponse } from './types/http-response.type';
 
 class ResponseService {
-  private response: http.ServerResponse | undefined = undefined;
+  response: http.ServerResponse | undefined = undefined;
 
   private sendResponse = ({ payload, statusCode }: HttpResponse): void => {
     if (!this.response) return;
@@ -19,13 +19,13 @@ class ResponseService {
     this.response = response;
   };
 
-  send = (payload: unknown) => {
-    this.sendResponse({ payload: JSON.stringify(payload) });
+  send = (payload: unknown, statusCode = STATUS_CODES.OK) => {
+    this.sendResponse({ payload: JSON.stringify(payload), statusCode });
   };
 
-  sendBadRequest = () => {
+  sendBadRequest = (message: string = RESPONSE_MESSAGES.BAD_REQUEST) => {
     this.sendResponse({
-      payload: RESPONSE_MESSAGES.BAD_REQUEST,
+      payload: message,
       statusCode: STATUS_CODES.BAD_REQUEST,
     });
   };
@@ -46,3 +46,4 @@ class ResponseService {
 }
 
 export const responseService = new ResponseService();
+export { STATUS_CODES };
