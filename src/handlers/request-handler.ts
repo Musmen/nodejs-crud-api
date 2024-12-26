@@ -6,6 +6,7 @@ import { User, userService, UserService } from '../services/users/users.service.
 import { getHandler } from './get-handler.ts';
 import { postHandler } from './post-handler.ts';
 import { putHandler } from './put-handler.ts';
+import { deleteHandler } from './delete-handler.ts';
 
 import { getIdFromPathName, getPathNameFromUrl } from '../common/helpers.ts';
 import { ENDPOINTS } from '../common/constants.ts';
@@ -45,6 +46,9 @@ export const requestHandler: http.RequestListener = (request, response) => {
       break;
     case 'PUT':
       putHandler(request, currentUserId);
+      break;
+    case 'DELETE':
+      deleteHandler(currentUserId);
       break;
   }
 };

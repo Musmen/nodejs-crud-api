@@ -10,7 +10,10 @@ class ResponseService {
     if (!this.response) return;
 
     this.response.statusCode = statusCode ? statusCode : STATUS_CODES.OK;
-    const { headerName, headerValue } = statusCode ? HEADERS.CONTENT.TEXT : HEADERS.CONTENT.JSON;
+    const { headerName, headerValue } =
+      this.response.statusCode >= STATUS_CODES.BAD_REQUEST
+        ? HEADERS.CONTENT.TEXT
+        : HEADERS.CONTENT.JSON;
     this.response.setHeader(headerName, headerValue);
     this.response.end(payload);
   };

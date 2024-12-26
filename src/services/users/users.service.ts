@@ -24,11 +24,16 @@ class UserService {
   };
 
   updateUser = (user: User): User => {
-    console.log(user);
     const currentUserIndex = this.findCurrentUserIndexById(user.id);
     if (currentUserIndex === -1) throw new Error();
     userDB[currentUserIndex] = user;
     return user;
+  };
+
+  removeUser = (currentUserId: string | undefined): void => {
+    const currentUserIndex = this.findCurrentUserIndexById(currentUserId);
+    if (currentUserIndex === -1) throw new Error();
+    userDB.splice(currentUserIndex, 1);
   };
 
   static getParsedUser = (user: string): User => {
