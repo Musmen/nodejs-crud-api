@@ -9,28 +9,32 @@ import { putHandler } from './put-handler.ts';
 import { deleteHandler } from './delete-handler.ts';
 
 export const requestHandler: http.RequestListener = (request, response) => {
-  responseService.init(response);
+  try {
+    responseService.init(response);
 
-  const { method, url } = request;
+    const { method, url } = request;
 
-  const pathname = pathnameService.getPathnameFromUrl(url);
-  if (!pathnameService.checkPathname(pathname)) return;
+    const pathname = pathnameService.getPathnameFromUrl(url);
+    if (!pathnameService.checkPathname(pathname)) return;
 
-  const currentUserId = pathnameService.getCurrentUserId(pathname);
-  const currentUser = pathnameService.getCurrentUser(currentUserId);
+    const currentUserId = pathnameService.getCurrentUserId(pathname);
+    const currentUser = pathnameService.getCurrentUser(currentUserId);
 
-  switch (method) {
-    case 'GET':
-      getHandler(pathname, currentUser);
-      break;
-    case 'POST':
-      postHandler(request);
-      break;
-    case 'PUT':
-      putHandler(request, currentUserId);
-      break;
-    case 'DELETE':
-      deleteHandler(currentUserId);
-      break;
+    switch (method) {
+      case 'GET':
+        getHandler(pathname, currentUser);
+        break;
+      case 'POST':
+        postHandler(request);
+        break;
+      case 'PUT':
+        putHandler(request, currentUserId);
+        break;
+      case 'DELETE':
+        deleteHandler(currentUserId);
+        break;
+    }
+  } catch {
+    responseService.sendServerError();
   }
 };

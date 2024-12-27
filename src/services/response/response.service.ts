@@ -46,7 +46,14 @@ class ResponseService {
       statusCode: STATUS_CODES.NOT_FOUND,
     });
   };
+
+  sendServerError = () => {
+    this.sendResponse({
+      payload: RESPONSE_MESSAGES.INTERNAL_SERVER_ERROR,
+      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR,
+    });
+  };
 }
 
 export const responseService = new ResponseService();
-export { STATUS_CODES };
+export { STATUS_CODES, RESPONSE_MESSAGES };
