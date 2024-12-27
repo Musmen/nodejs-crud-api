@@ -6,8 +6,6 @@ import { User, userService, UserService } from '../services/users/users.service.
 export const putHandler = (request: http.IncomingMessage, currentUserId: string | undefined) => {
   let requestBody = '';
 
-  throw new Error('Oh, no!!!!!!');
-
   request.on('data', (chunk: string) => {
     requestBody += chunk.toString();
   });
