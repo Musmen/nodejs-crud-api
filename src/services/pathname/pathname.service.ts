@@ -1,13 +1,15 @@
 import { responseService } from '../response/response.service.ts';
 import { User, userService, UserService } from '../users/users.service.ts';
 
-import { getIdFromPathname, getPathnameFromUrl } from '../../common/helpers.ts';
-import { ENDPOINTS } from '../../common/constants.ts';
+import { ENDPOINTS, URL_DELIMITER } from '../../common/constants.ts';
 
 class PathnameService {
-  getPathnameFromUrl = (url: string | undefined): string => getPathnameFromUrl(url);
+  private parseUrl = (url = '') => new URL(`http://${process.env.HOST ?? 'localhost'}${url}`);
 
-  getCurrentUserId = (pathname: string): string | undefined => getIdFromPathname(pathname);
+  getPathnameFromUrl = (url: string | undefined = ''): string => this.parseUrl(url).pathname;
+
+  getCurrentUserId = (pathname: string): string | undefined =>
+    pathname.split(`${ENDPOINTS.USERS}${URL_DELIMITER}`).pop();
 
   getCurrentUser = (currentUserId: string | undefined): User | undefined =>
     userService.findCurrentUserById(currentUserId);

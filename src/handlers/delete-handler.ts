@@ -3,5 +3,5 @@ import { responseService, STATUS_CODES } from '../services/response/response.ser
 
 export const deleteHandler = (currentUserId: string | undefined): void => {
   userService.removeUser(currentUserId);
-  responseService.send('', STATUS_CODES.DELETED);
+  responseService.send('', STATUS_CODES.NO_CONTENT);
 };
