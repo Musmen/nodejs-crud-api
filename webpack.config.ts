@@ -10,19 +10,31 @@ const config: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
-        use: 'ts-loader',
+        test: /\.tsx?$/,
         exclude: /node_modules/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: { transpileOnly: true },
+          },
+        ],
       },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.mjs'],
+  },
+  experiments: {
+    outputModule: true,
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
+    clean: true,
+    filename: 'index.mjs',
+    module: true,
+    chunkFormat: 'module',
   },
+  stats: 'errors-only',
 };
 
 export default config;
