@@ -8,9 +8,9 @@ export const STATUS_CODES = {
 };
 
 export const RESPONSE_MESSAGES = {
-  BAD_REQUEST: 'Bad request',
-  NOT_FOUND: 'Not found',
-  INTERNAL_SERVER_ERROR: 'Internal server error',
+  BAD_REQUEST: 'Bad Request',
+  NOT_FOUND: 'Not Found',
+  INTERNAL_SERVER_ERROR: 'Internal Server Error',
 };
 
 export const HEADERS = {

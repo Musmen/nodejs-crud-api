@@ -1,3 +1,5 @@
+export const BASE_URL = `http://${process.env.HOST ?? 'localhost'}`;
+
 export const ENDPOINTS = {
   USERS: '/api/users',
 };
