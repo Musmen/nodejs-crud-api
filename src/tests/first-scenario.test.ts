@@ -1,11 +1,21 @@
 import axios from 'axios';
 
-import { getUrl } from './helpers.ts';
-import { User } from '../services/users/users.service.ts';
+import { startServer, closeServer } from '../server.ts';
+
 import { RESPONSE_MESSAGES, STATUS_CODES } from '../services/response/response.service.ts';
+import { User } from '../services/users/users.service.ts';
+import { getUrl } from './helpers.ts';
 
 const NO_CONTENT_MESSAGE = 'No Content';
 const usersEndpointUrl = getUrl();
+
+beforeAll(() => {
+  startServer();
+});
+
+afterAll(() => {
+  closeServer();
+});
 
 describe('first test scenario', () => {
   test("should get empty users's db", async () => {
