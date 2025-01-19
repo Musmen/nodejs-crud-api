@@ -4,11 +4,11 @@ dotenv.config();
 import * as http from 'node:http';
 import { requestHandler } from './handlers/request-handler.ts';
 
-export const server = http.createServer();
-
-export const startServer = (): void => {
+export const startServer = (): http.Server => {
+  const server = http.createServer();
   server.on('request', requestHandler);
   server.listen(process.env.PORT);
+  return server;
 };
 
-export const closeServer = () => server.close();
+export const closeServer = (server: http.Server) => server.close();

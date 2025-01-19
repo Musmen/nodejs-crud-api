@@ -1,27 +1,34 @@
-import axios from 'axios';
+import * as http from 'node:http';
+
+import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 
 import { startServer, closeServer } from '../server.ts';
 
 import { RESPONSE_MESSAGES, STATUS_CODES } from '../services/response/response.service.ts';
-import { User } from '../services/users/users.service.ts';
-import { getUrl } from './helpers.ts';
+import { UserService } from '../services/users/users.service.ts';
 
-const NO_CONTENT_MESSAGE = 'No Content';
-const usersEndpointUrl = getUrl();
+import { ENDPOINTS } from '../common/constants.ts';
 
-beforeAll(() => {
-  startServer();
-});
-
-afterAll(() => {
-  closeServer();
-});
+import { UserResponse, UsersResponse } from './types/response.type.ts';
 
 describe('first test scenario', () => {
+  let server: http.Server;
+  let request: TestAgent;
+
+  beforeEach(() => {
+    server = startServer();
+    request = supertest(server);
+  });
+
+  afterEach(() => {
+    closeServer(server);
+    UserService.clearUsersDB();
+  });
+
   test("should get empty users's db", async () => {
-    const response = await axios.get(usersEndpointUrl);
-    const userDB = (await response.data) as User[];
-    expect(userDB.length).toBe(0);
+    const response = (await request.get(ENDPOINTS.USERS).expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(response.body).toHaveLength(0);
   });
 
   test('should create new object by a POST `api/users` request and response should contain newly created record', async () => {
@@ -30,14 +37,24 @@ describe('first test scenario', () => {
       age: 18,
       hobbies: ['computer games', 'nodejs', 'fun'],
     };
-    const postResponse = await axios.post(usersEndpointUrl, newUser);
-    const postResponsePayload = (await postResponse.data) as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    expect(postResponsePayload).toMatchObject({ ...newUser, id: expect.any(String) });
 
-    const responseAfter = await axios.get(usersEndpointUrl);
-    const userDBAfter = (await responseAfter.data) as User[];
-    expect(userDBAfter.length).toBe(1);
+    const responseBeforePost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseBeforePost.body).toHaveLength(0);
+
+    const postResponse = (await request
+      .post(ENDPOINTS.USERS)
+      .send(newUser)
+      .expect(STATUS_CODES.CREATED)) as UserResponse;
+    expect(postResponse.body).toMatchObject(newUser);
+    expect(postResponse.body).toHaveProperty('id');
+    expect(UserService.checkUserId(postResponse.body.id)).toBeTruthy();
+
+    const responseAfterPost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterPost.body).toHaveLength(1);
   });
 
   test('GET api/users/{userId} request should get the created record by its id', async () => {
@@ -46,15 +63,30 @@ describe('first test scenario', () => {
       age: 10,
       hobbies: ['computer', 'games', 'books'],
     };
-    const postResponse = await axios.post(usersEndpointUrl, newUser);
-    const postResponsePayload = (await postResponse.data) as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    expect(postResponsePayload).toMatchObject({ ...newUser, id: expect.any(String) });
 
-    const newUserID = postResponsePayload.id ?? '';
-    const responseUser = await axios.get(`${usersEndpointUrl}/${newUserID}`);
-    const fetchedUser = (await responseUser.data) as User;
-    expect(fetchedUser).toMatchObject({ ...newUser, id: newUserID });
+    const responseBeforePost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseBeforePost.body).toHaveLength(0);
+
+    const postResponse = (await request
+      .post(ENDPOINTS.USERS)
+      .send(newUser)
+      .expect(STATUS_CODES.CREATED)) as UserResponse;
+    expect(postResponse.body).toMatchObject(newUser);
+    expect(postResponse.body).toHaveProperty('id');
+    expect(UserService.checkUserId(postResponse.body.id)).toBeTruthy();
+
+    const responseAfterPost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterPost.body).toHaveLength(1);
+
+    const newUserID = postResponse.body.id ?? '';
+    const responseUser = (await request
+      .get(`${ENDPOINTS.USERS}/${newUserID}`)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseUser.body).toMatchObject({ ...newUser, id: newUserID });
   });
 
   test('Should update the created record with a PUT api/users/{userId} request (a response should contain an updated object with the same id)', async () => {
@@ -63,25 +95,43 @@ describe('first test scenario', () => {
       age: 18,
       hobbies: ['punk', 'not', 'dead'],
     };
-    const postResponse = await axios.post(usersEndpointUrl, newUser);
-    const postResponsePayload = (await postResponse.data) as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    expect(postResponsePayload).toMatchObject({ ...newUser, id: expect.any(String) });
 
-    const newUserID = postResponsePayload.id ?? '';
-    const responseUser = await axios.get(`${usersEndpointUrl}/${newUserID}`);
-    const fetchedUser = (await responseUser.data) as User;
-    expect(fetchedUser).toMatchObject({ ...newUser, id: newUserID });
+    const responseBeforePost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseBeforePost.body).toHaveLength(0);
+
+    const postResponse = (await request
+      .post(ENDPOINTS.USERS)
+      .send(newUser)
+      .expect(STATUS_CODES.CREATED)) as UserResponse;
+    expect(postResponse.body).toMatchObject(newUser);
+    expect(postResponse.body).toHaveProperty('id');
+    expect(UserService.checkUserId(postResponse.body.id)).toBeTruthy();
+
+    const newUserID = postResponse.body.id ?? '';
+    const responseUser = (await request
+      .get(`${ENDPOINTS.USERS}/${newUserID}`)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseUser.body).toMatchObject({ ...newUser, id: newUserID });
 
     const updatedUser = {
       username: 'Simple Ivan',
       age: 18,
       hobbies: ['punk', 'not', 'dead'],
     };
-    const responseUpdatedUser = await axios.put(`${usersEndpointUrl}/${newUserID}`, updatedUser);
-    const fetchedUpdatedUser = (await responseUpdatedUser.data) as User;
-    expect(fetchedUpdatedUser).not.toMatchObject({ ...newUser, id: newUserID });
-    expect(fetchedUpdatedUser).toMatchObject({ ...updatedUser, id: newUserID });
+
+    const responseUpdatedUser = (await request
+      .put(`${ENDPOINTS.USERS}/${newUserID}`)
+      .send(updatedUser)
+      .expect(STATUS_CODES.OK)) as UserResponse;
+    expect(responseUpdatedUser.body).not.toMatchObject({ ...newUser, id: newUserID });
+    expect(responseUpdatedUser.body).toMatchObject({ ...updatedUser, id: newUserID });
+
+    const responseAfterPut = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterPut.body).toHaveLength(1);
   });
 
   test('DELETE api/users/{userId} request should delete the created object by id and should send confirmation of successful deletion', async () => {
@@ -90,19 +140,32 @@ describe('first test scenario', () => {
       age: 45,
       hobbies: ['films', 'videos'],
     };
-    const postResponse = await axios.post(usersEndpointUrl, newUser);
-    const postResponsePayload = (await postResponse.data) as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    expect(postResponsePayload).toMatchObject({ ...newUser, id: expect.any(String) });
 
-    const newUserID = postResponsePayload.id ?? '';
-    const responseUser = await axios.get(`${usersEndpointUrl}/${newUserID}`);
-    const fetchedUser = (await responseUser.data) as User;
-    expect(fetchedUser).toMatchObject({ ...newUser, id: newUserID });
+    const responseBeforePost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseBeforePost.body).toHaveLength(0);
 
-    const responseDeletedUser = await axios.delete(`${usersEndpointUrl}/${newUserID}`);
-    const responseDeletedUserMessage = responseDeletedUser.statusText;
-    expect(responseDeletedUserMessage).toBe(NO_CONTENT_MESSAGE);
+    const postResponse = (await request
+      .post(ENDPOINTS.USERS)
+      .send(newUser)
+      .expect(STATUS_CODES.CREATED)) as UserResponse;
+    expect(postResponse.body).toMatchObject(newUser);
+    expect(postResponse.body).toHaveProperty('id');
+    expect(UserService.checkUserId(postResponse.body.id)).toBeTruthy();
+
+    const responseAfterPost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterPost.body).toHaveLength(1);
+
+    const newUserID = postResponse.body.id ?? '';
+    await request.delete(`${ENDPOINTS.USERS}/${newUserID}`).expect(STATUS_CODES.NO_CONTENT);
+
+    const responseAfterDelete = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterDelete.body).toHaveLength(0);
   });
 
   test(`GET api/users/{userId} request, when we are trying to get a deleted object by id should send answer is that there is no such object`, async () => {
@@ -111,26 +174,36 @@ describe('first test scenario', () => {
       age: 57,
       hobbies: [''],
     };
-    const postResponse = await axios.post(usersEndpointUrl, newUser);
-    const postResponsePayload = (await postResponse.data) as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    expect(postResponsePayload).toMatchObject({ ...newUser, id: expect.any(String) });
 
-    const newUserID = postResponsePayload.id ?? '';
-    const responseUser = await axios.get(`${usersEndpointUrl}/${newUserID}`);
-    const fetchedUser = (await responseUser.data) as User;
-    expect(fetchedUser).toMatchObject({ ...newUser, id: newUserID });
+    const responseBeforePost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseBeforePost.body).toHaveLength(0);
 
-    const responseDeletedUser = await axios.delete(`${usersEndpointUrl}/${newUserID}`);
-    const responseDeletedUserMessage = responseDeletedUser.statusText;
-    expect(responseDeletedUserMessage).toBe(NO_CONTENT_MESSAGE);
+    const postResponse = (await request
+      .post(ENDPOINTS.USERS)
+      .send(newUser)
+      .expect(STATUS_CODES.CREATED)) as UserResponse;
+    expect(postResponse.body).toMatchObject(newUser);
+    expect(postResponse.body).toHaveProperty('id');
+    expect(UserService.checkUserId(postResponse.body.id)).toBeTruthy();
 
-    await axios
-      .get(`${usersEndpointUrl}/${newUserID}`)
-      // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-      .catch((error: { response: { statusText: string; status: string } }) => {
-        expect(error.response.statusText).toBe(RESPONSE_MESSAGES.NOT_FOUND);
-        expect(error.response.status).toBe(STATUS_CODES.NOT_FOUND);
-      });
+    const responseAfterPost = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterPost.body).toHaveLength(1);
+
+    const newUserID = postResponse.body.id ?? '';
+    await request.delete(`${ENDPOINTS.USERS}/${newUserID}`).expect(STATUS_CODES.NO_CONTENT);
+
+    const responseAfterDelete = (await request
+      .get(ENDPOINTS.USERS)
+      .expect(STATUS_CODES.OK)) as UsersResponse;
+    expect(responseAfterDelete.body).toHaveLength(0);
+
+    const getResponseAfterDelete = await request
+      .get(`${ENDPOINTS.USERS}/${newUserID}`)
+      .expect(STATUS_CODES.NOT_FOUND);
+    expect(getResponseAfterDelete.text).toBe(RESPONSE_MESSAGES.NOT_FOUND);
   });
 });

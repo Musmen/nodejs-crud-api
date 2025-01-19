@@ -51,6 +51,10 @@ class UserService {
 
     return parsedUser;
   };
+
+  static clearUsersDB = (): void => {
+    userDB.length = 0;
+  };
 }
 
 export const userService = new UserService();
