@@ -4,10 +4,10 @@ dotenv.config();
 import * as http from 'node:http';
 import { requestHandler } from './handlers/request-handler.ts';
 
-export const startServer = (): http.Server => {
+export const startServer = (port = Number(process.env.PORT)): http.Server => {
   const server = http.createServer();
   server.on('request', requestHandler);
-  server.listen(process.env.PORT);
+  server.listen(port);
   return server;
 };
 

@@ -12,12 +12,12 @@ import { ENDPOINTS } from '../common/constants.ts';
 
 import { UserResponse, UsersResponse } from './types/response.type.ts';
 
-describe('first test scenario', () => {
+describe('First test scenario', () => {
   let server: http.Server;
   let request: TestAgent;
 
   beforeEach(() => {
-    server = startServer();
+    server = startServer(0);
     request = supertest(server);
   });
 
@@ -26,12 +26,12 @@ describe('first test scenario', () => {
     UserService.clearUsersDB();
   });
 
-  test("should get empty users's db", async () => {
+  test("Should get empty users's db", async () => {
     const response = (await request.get(ENDPOINTS.USERS).expect(STATUS_CODES.OK)) as UsersResponse;
     expect(response.body).toHaveLength(0);
   });
 
-  test('should create new object by a POST `api/users` request and response should contain newly created record', async () => {
+  test('Should create new object by a POST `api/users` request and response should contain newly created record', async () => {
     const newUser = {
       username: 'Zed',
       age: 18,
