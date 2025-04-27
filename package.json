@@ -8,6 +8,7 @@
     "register": "cross-env NODE_OPTIONS='--import=./register-ts-node.mjs'",
     "start:prod": "npm run register webpack && node ./dist/index.mjs",
     "start:dev": "npm run register nodemon --exec ts-node ./src/index.ts",
+    "start:multi": "cross-env MULTI_MODE=true npm run start:dev",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format:check": "prettier --check .",

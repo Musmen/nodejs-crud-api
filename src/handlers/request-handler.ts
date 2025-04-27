@@ -1,4 +1,5 @@
 import * as http from 'node:http';
+import cluster from 'node:cluster';
 
 import { responseService } from '../services/response/response.service.ts';
 import { pathnameService } from '../services/pathname/pathname.service.ts';
@@ -9,6 +10,8 @@ import { putHandler } from './put-handler.ts';
 import { deleteHandler } from './delete-handler.ts';
 
 export const requestHandler: http.RequestListener = (request, response) => {
+  console.log('Current cluster number is: ', cluster.worker?.id);
+
   try {
     responseService.init(response);
 
