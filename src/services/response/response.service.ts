@@ -1,5 +1,8 @@
 import * as http from 'node:http';
+import cluster from 'node:cluster';
 
+import { userService } from '../users/users.service.ts';
+import { DB_UPDATE_MESSAGE_TYPE } from '../../common/constants.ts';
 import { HEADERS, RESPONSE_MESSAGES, STATUS_CODES } from './common/constants.ts';
 import { HttpResponse } from './types/http-response.type';
 
@@ -9,7 +12,7 @@ class ResponseService {
   private sendResponse = ({ payload, statusCode }: HttpResponse): void => {
     if (!this.response) return;
 
-    this.response.statusCode = statusCode ? statusCode : STATUS_CODES.OK;
+    this.response.statusCode = statusCode ?? STATUS_CODES.OK;
     const { headerName, headerValue } =
       this.response.statusCode >= STATUS_CODES.BAD_REQUEST
         ? HEADERS.CONTENT.TEXT
@@ -24,6 +27,13 @@ class ResponseService {
 
   send = (payload: unknown, statusCode = STATUS_CODES.OK) => {
     this.sendResponse({ payload: JSON.stringify(payload), statusCode });
+
+    if (cluster.isWorker) {
+      process.send?.({
+        type: DB_UPDATE_MESSAGE_TYPE,
+        data: userService.getAllUsers(),
+      });
+    }
   };
 
   sendBadRequest = (message: string = RESPONSE_MESSAGES.BAD_REQUEST) => {

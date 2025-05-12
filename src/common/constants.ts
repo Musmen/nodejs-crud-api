@@ -13,4 +13,7 @@ export const ERRORS = {
     HOBBIES: "User's hobbies are required!",
   },
   USER_INVALID_TYPE: 'User type is invalid',
+  PROXY: 'Proxy error',
 };
+
+export const DB_UPDATE_MESSAGE_TYPE = 'DB_UPDATE';

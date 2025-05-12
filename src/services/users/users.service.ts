@@ -6,7 +6,19 @@ import { ERRORS } from '../../common/constants.ts';
 import { User } from './types/user.type.ts';
 
 class UserService {
+  static instance: UserService;
+
+  public static getInstance(): UserService {
+    UserService.instance = new UserService();
+    return UserService.instance;
+  }
+
   getAllUsers = (): User[] => userDB;
+
+  updateAllUsers = (newUserDb: User[]): void => {
+    UserService.clearUsersDB();
+    newUserDb.forEach((user) => userDB.push(user));
+  };
 
   findCurrentUserById = (currentUserId: string | undefined): User | undefined =>
     userDB.find((user: User) => user.id === currentUserId);
@@ -57,5 +69,5 @@ class UserService {
   };
 }
 
-export const userService = new UserService();
+export const userService = UserService.getInstance();
 export { User, UserService };

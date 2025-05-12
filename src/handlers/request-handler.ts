@@ -10,7 +10,7 @@ import { putHandler } from './put-handler.ts';
 import { deleteHandler } from './delete-handler.ts';
 
 export const requestHandler: http.RequestListener = (request, response) => {
-  console.log('Current cluster number is: ', cluster.worker?.id);
+  if (cluster.isWorker) console.log('Current cluster number is: ', cluster.worker?.id);
 
   try {
     responseService.init(response);
